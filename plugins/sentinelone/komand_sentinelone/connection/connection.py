@@ -1,17 +1,15 @@
+import base64
+import io
+import time
+import zipfile
+
 import insightconnect_plugin_runtime
 import requests
-from .schema import ConnectionSchema, Input
-
+from insightconnect_plugin_runtime.exceptions import ConnectionTestException, PluginException
 from komand_sentinelone.util.api import SentineloneAPI
-from insightconnect_plugin_runtime.exceptions import (
-    ConnectionTestException,
-    PluginException,
-)
-import zipfile
-import io
-import base64
-import time
 from komand_sentinelone.util.helper import Helper
+
+from .schema import ConnectionSchema, Input
 
 
 class Connection(insightconnect_plugin_runtime.Connection):
@@ -238,10 +236,13 @@ class Connection(insightconnect_plugin_runtime.Connection):
         # Mark as threat does not exist in v2.1
         return self._call_api("POST", "threats/mark-as-threat", body, override_api_version="2.0")["data"]["affected"]
 
-    def get_threats(self, params):
+    def get_threats(self, params: dict, api_version: str = "2.0") -> dict:
         # GET /threats has different response schemas for 2.1 and 2.0
         # Use 2.0 endpoint to be consistent and support as many S1 consoles as possible
-        return self._call_api("GET", "threats", params=params, override_api_version="2.0")
+        return self._call_api("GET", "threats", params=params, override_api_version=api_version)
+
+    def get_alerts(self, params: dict) -> dict:
+        return self._call_api("GET", "cloud-detection/alerts", params=params)
 
     def create_blacklist_item(self, blacklist_hash: str, description: str):
         sites = self._call_api("GET", "sites").get("data", {}).get("sites", [])
@@ -344,6 +345,66 @@ class Connection(insightconnect_plugin_runtime.Connection):
             return insightconnect_plugin_runtime.helper.clean(self.get_all_paginated_results(endpoint, params=params))
 
         return insightconnect_plugin_runtime.helper.clean(self._call_api("GET", endpoint, params=params))
+
+    def update_analyst_verdict(self, incident_ids: list, analyst_verdict: str, _type: str) -> dict:
+        if _type == "threats":
+            endpoint = "threats/analyst-verdict"
+        else:
+            endpoint = "cloud-detection/alerts/analyst-verdict"
+
+        return self._call_api(
+            "POST",
+            endpoint,
+            {"filter": {"ids": incident_ids}, "data": {"analystVerdict": analyst_verdict}},
+        )
+
+    def update_incident_status(self, incident_ids: list, incident_status: str, _type: str) -> dict:
+        if _type == "threats":
+            endpoint = "threats/incident"
+        else:
+            endpoint = "cloud-detection/alerts/incident"
+
+        return self._call_api(
+            "POST",
+            endpoint,
+            {"filter": {"ids": incident_ids}, "data": {"incidentStatus": incident_status}},
+        )
+
+    def validate_incidents_exist(self, incident_ids: list, _type: str) -> list:
+        for incident_id in incident_ids:
+            response_data = self.get_incident(incident_id, _type).get("data")
+            if isinstance(response_data, list) and response_data.__len__() == 0:
+                self.logger.info(f"Incident {incident_id} was not found.")
+                incident_ids.remove(incident_id)
+
+        return incident_ids
+
+    def validate_incident_state(self, incident_ids: list, _type: str, new_state: str, attribute: str) -> list:
+        for incident_id in incident_ids:
+            response_data = self.get_incident(incident_id, _type).get("data")
+            for incident in response_data:
+                if _type == "threats":
+                    object_name = "threatInfo"
+                    resp_incident_id = incident.get("id")
+                else:
+                    object_name = "alertInfo"
+                    resp_incident_id = incident.get(object_name, {}).get("alertId")
+
+                attribute_name = "analystVerdict" if attribute == "analystVerdict" else "incidentStatus"
+                if resp_incident_id == incident_id and incident.get(object_name, {}).get(attribute_name) == new_state:
+                    self.logger.info(f"Incident {incident_id} has the {attribute_name} already set to {new_state}.")
+                    incident_ids.remove(incident_id)
+
+        return incident_ids
+
+    def get_incident(self, incident_id: str, _type: str) -> dict:
+        params = {"ids": [incident_id]}
+        if _type == "threats":
+            response = self.get_threats(params, api_version="2.1")
+        else:
+            response = self.get_alerts(params)
+
+        return response
 
     def get_all_paginated_results(
         self,
