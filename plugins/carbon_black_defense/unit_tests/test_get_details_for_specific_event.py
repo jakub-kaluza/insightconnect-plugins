@@ -5,7 +5,6 @@ sys.path.append(os.path.abspath("../tests/"))
 
 from unittest import TestCase
 from unittest.mock import patch
-
 from komand_carbon_black_defense.actions.get_details_for_specific_event import GetDetailsForSpecificEvent
 from komand_carbon_black_defense.actions.get_details_for_specific_event.schema import (
     Input as GetDetailsForSpecificEventtSchemaInput,
@@ -13,39 +12,61 @@ from komand_carbon_black_defense.actions.get_details_for_specific_event.schema i
 from unit_tests.util import Util
 from insightconnect_plugin_runtime.exceptions import PluginException
 
+from unit_tests.mock import (
+    mock_request,
+)
+
 
 class TestGetDetailsForSpecificEvent(TestCase):
-    @classmethod
-    @patch("requests.request", side_effect=Util.mock_request)
-    def setUpClass(cls, mock_request) -> None:
-        cls.connection, cls.action = Util.default_connector(GetDetailsForSpecificEvent())
 
-    # approach: testing users input that could mess up action - user input changes / api changes
-    # test not entering an org key
-    @patch("requests.request", side_effect=Util.mock_request)
-    def test_get_job_id_for_detail_search_empty_org_key(self, make_request):
-        temp_org_key = self.action.connection.org_key
-        self.action.connection.org_key = ""
+    def setUp(self) -> None:
+        self.connection, self.action = Util.default_connector(GetDetailsForSpecificEvent())
+
+    # approach: test valid requests and error handling for common responses
+    # test get details for specific event with valid input
+    @patch("requests.request", side_effect=mock_request)
+    def test_get_details_for_specific_event(self, mock_req):
+        actual = self.action.run(
+            {
+                GetDetailsForSpecificEventtSchemaInput.EVENT_IDS: "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+            }
+        )
+        expected = {
+            "eventinfo": {
+                "results": [],
+                "num_found": 0,
+                "num_available": 0,
+                "approximate_unaggregated": 0,
+                "num_aggregated": 0,
+                "contacted": 48,
+                "completed": 48,
+            },
+            "success": True,
+        }
+        self.assertEqual(actual, expected)
+
+    # test get details for specific event with invalid credentials
+    @patch("requests.request", side_effect=mock_request)
+    def test_get_details_for_specific_event_unauthorized(self, mock_req):
         with self.assertRaises(PluginException) as exception:
-            self.action.connection.get_job_id_for_detail_search(
-                {GetDetailsForSpecificEventtSchemaInput.EVENT_ID: "1234"}
+            self.connection.host = 'url_invalid'
+            self.action.run(
+                {
+                    GetDetailsForSpecificEventtSchemaInput.EVENT_IDS: "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+                }
             )
-        cause = "There's no org key input."
-        self.assertEqual(exception.exception.cause, cause)
-        self.action.connection.org_key = temp_org_key
-
-    # testing a user not entering any event id to search by
-    @patch("requests.request", side_effect=Util.mock_request)
-    def test_get_job_id_for_detail_search_with_no_event_id(self, make_request):
-        with self.assertRaises(PluginException) as exception:
-            self.action.run({GetDetailsForSpecificEventtSchemaInput.EVENT_ID: []})
-        cause = "Error. Have not entered an event ID for action to run."
+        cause = "Either the organization key, API key, or connector ID configured in your connection is invalid."
         self.assertEqual(exception.exception.cause, cause)
 
-    # testing if a plugin exception is raised due to an incorrect event ID type
-    @patch("requests.request", side_effect=Util.mock_request)
-    def test_get_job_id_for_detail_search_with_incorrect_event_id_type(self, make_request):
+    # test get details for specific event with an invalid org key
+    @patch("requests.request", side_effect=mock_request)
+    def test_get_details_for_specific_event_forbidden(self, mock_req):
         with self.assertRaises(PluginException) as exception:
-            self.action.run({GetDetailsForSpecificEventtSchemaInput.EVENT_ID: {"1234"}})
-        cause = "Error. Event ID must be an array of a string."
+            self.connection.org_key = 'org_key_forbidden'
+            self.action.run(
+                {
+                    GetDetailsForSpecificEventtSchemaInput.EVENT_IDS: "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+                }
+            )
+        cause = "Access to this resource is forbidden."
         self.assertEqual(exception.exception.cause, cause)

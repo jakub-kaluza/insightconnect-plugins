@@ -15,7 +15,7 @@ class Connection(insightconnect_plugin_runtime.Connection):
         self.job_id = None
 
     def connect(self, params={}):
-        self.logger.info("Connect: Connecting..")
+        self.logger.info("Connect: Connecting...")
         self.host = params.get(Input.URL)
         self.token = params.get(Input.API_KEY).get("secretKey")
         self.org_key = params.get(Input.ORG_KEY)
@@ -25,10 +25,6 @@ class Connection(insightconnect_plugin_runtime.Connection):
     def get_job_id_for_enriched_event(
         self, criteria: dict, exclusions: dict = None, time_range: dict = None, window: str = None
     ) -> Optional[dict]:
-        if self.org_key == "":
-            raise PluginException(
-                cause="There's no org key input.", assistance="Please add a valid org key to the connection."
-            )
         response = self.call_api(
             "POST",
             f"{self.host}/api/investigate/v2/orgs/{self.org_key}/enriched_events/search_jobs",
@@ -59,10 +55,6 @@ class Connection(insightconnect_plugin_runtime.Connection):
         return response
 
     def get_job_id_for_detail_search(self, event_ids: str) -> Optional[str]:
-        if self.org_key == "":
-            raise PluginException(
-                cause="There's no org key input.", assistance="Please add a valid org key to the connection."
-            )
         response = self.call_api(
             "POST",
             f"{self.host}/api/investigate/v2/orgs/{self.org_key}/enriched_events/detail_jobs",
@@ -83,7 +75,7 @@ class Connection(insightconnect_plugin_runtime.Connection):
             return True
         return False
 
-    def retrieve_results_for_detail_search(self, job_id: str):
+    def retrieve_results_for_detail_search(self, job_id: str) -> dict:
         results = self.call_api(
             "GET",
             f"{self.host}/api/investigate/v2/orgs/{self.org_key}/enriched_events/detail_jobs/{job_id}/results",
@@ -91,7 +83,7 @@ class Connection(insightconnect_plugin_runtime.Connection):
         )
         return results
 
-    def call_api(self, method: str, url: str, params: dict = None, data: str = None, json_data: object = None) -> json:
+    def call_api(self, method: str, url: str, params: dict = None, data: str = None, json_data: object = None) -> dict:
         try:
             response = requests.request(method, url, headers=self.headers, params=params, data=data, json=json_data)
             if 200 <= response.status_code < 300:
@@ -99,8 +91,13 @@ class Connection(insightconnect_plugin_runtime.Connection):
             if 400 <= response.status_code < 500:
                 if response.status_code == 403:
                     raise PluginException(
-                        cause="One of the following credentials is invalid: the org key, "
-                        "the api key or the connector is invalid.",
+                        cause="Access to this resource is forbidden.",
+                        assistance="Please ensure the org key is valid. If the issue persists, please contact support.",
+                    )
+                elif response.status_code == 401:
+                    raise PluginException(
+                        cause="Either the organization key, API key, or connector ID configured in your connection is "
+                        "invalid.",
                         assistance="Please enter valid credentials in the connection.",
                     )
                 raise PluginException(
@@ -113,7 +110,6 @@ class Connection(insightconnect_plugin_runtime.Connection):
 
         except json.decoder.JSONDecodeError as e:
             raise PluginException(
-                cause="Received an unexpected response from the server.",
-                assistance="(non-JSON or no response was received).",
+                preset=PluginException.Preset.INVALID_JSON,
                 data=e,
             )

@@ -3,7 +3,7 @@ from .schema import GetDetailsForSpecificEventInput, GetDetailsForSpecificEventO
 from insightconnect_plugin_runtime.exceptions import PluginException
 
 import time
-from _datetime import datetime
+from datetime import datetime
 
 
 class GetDetailsForSpecificEvent(insightconnect_plugin_runtime.Action):
@@ -16,16 +16,12 @@ class GetDetailsForSpecificEvent(insightconnect_plugin_runtime.Action):
         )
 
     def run(self, params={}):
-        event_id = params.get(Input.EVENT_ID)
+
+        event_id = params.get(Input.EVENT_IDS)
         if len(event_id) == 0:
             raise PluginException(
-                cause="Error. Have not entered an event ID for action to run.",
-                assistance="Please enter an event ID for the action to run.",
-            )
-        if type(event_id) is not list:
-            raise PluginException(
-                cause="Error. Event ID must be an array of a string.",
-                assistance="Please convert the data type of event ID into an array of a string.",
+                cause="Error. No event IDs were provided as input.",
+                assistance="Please enter at least one event ID.",
             )
         id_ = self.connection.get_job_id_for_detail_search(event_ids=event_id)
         self.logger.info(f"Got job ID for detail search: {id_}")

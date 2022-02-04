@@ -26,7 +26,6 @@ class FindEvent(insightconnect_plugin_runtime.Action):
         device_name = params.get(Input.DEVICE_NAME)
 
         criteria = {}
-        exclusions = {}
 
         if device_external_ip:
             criteria["device_external_ip"] = device_external_ip
@@ -43,23 +42,12 @@ class FindEvent(insightconnect_plugin_runtime.Action):
                 cause="Error. Have not entered a criteria for action to run.",
                 assistance="Enter a criteria of at least one plugin input.",
             )
-        elif len(exclusions) > 0:
-            if device_external_ip:
-                exclusions["device_external_ip"] = device_external_ip
-            if process_name:
-                exclusions["process_name"] = [process_name]
-            if enriched_event_type:
-                exclusions["enriched_event_type"] = enriched_event_type
-            if process_hash:
-                exclusions["process_hash"] = [process_hash]
-            if device_name:
-                exclusions["device_name"] = [device_name]
 
-        id_ = self.connection.get_job_id_for_enriched_event(criteria, exclusions=exclusions)
+        id_ = self.connection.get_job_id_for_enriched_event(criteria)
 
         self.logger.info(f"Got enriched event job ID: {id_}")
         if id_ is None:
-            return {Output.EVENTINFO: {Output.SUCCESS: False}}
+            return {Output.EVENTINFO: None, Output.SUCCESS: False}
         enriched_event_search_status = self.connection.get_enriched_event_status(id_)
 
         t1 = datetime.now()
@@ -70,10 +58,10 @@ class FindEvent(insightconnect_plugin_runtime.Action):
                     break
             else:
                 time.sleep(3)
-        response = self.connection.retrieve_results_for_enriched_event(job_id=id_)
-        data = insightconnect_plugin_runtime.helper.clean(response)
+            response = self.connection.retrieve_results_for_enriched_event(job_id=id_)
+            data = insightconnect_plugin_runtime.helper.clean(response)
 
-        return {
-            Output.SUCCESS: True,
-            Output.EVENTINFO: data,
-        }
+            return {
+                Output.SUCCESS: True,
+                Output.EVENTINFO: data,
+            }

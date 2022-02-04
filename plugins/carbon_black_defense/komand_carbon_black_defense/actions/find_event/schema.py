@@ -9,35 +9,31 @@ class Component:
 
 class Input:
     DEVICE_EXTERNAL_IP = "device_external_ip"
-    DEVICE_INSTALLED_BY = "device_installed_by"
     DEVICE_NAME = "device_name"
     ENRICHED_EVENT_TYPE = "enriched_event_type"
     PROCESS_HASH = "process_hash"
     PROCESS_NAME = "process_name"
-
+    TIME_RANGE = "time_range"
+    
 
 class Output:
     EVENTINFO = "eventinfo"
     SUCCESS = "success"
-
+    
 
 class FindEventInput(insightconnect_plugin_runtime.Input):
-    schema = json.loads(
-        """
+    schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
   "properties": {
     "device_external_ip": {
-      "type": "string",
+      "type": "array",
       "title": "Device External IP",
       "description": "Device external IP",
-      "order": 3
-    },
-    "device_installed_by": {
-      "type": "string",
-      "title": "Device Installed By",
-      "description": "Device installed by",
+      "items": {
+        "type": "string"
+      },
       "order": 2
     },
     "device_name": {
@@ -50,7 +46,7 @@ class FindEventInput(insightconnect_plugin_runtime.Input):
       "type": "string",
       "title": "Enriched Event Type",
       "description": "Enriched event type",
-      "order": 6
+      "order": 5
     },
     "process_hash": {
       "type": "array",
@@ -59,26 +55,33 @@ class FindEventInput(insightconnect_plugin_runtime.Input):
       "items": {
         "type": "string"
       },
-      "order": 4
+      "order": 3
     },
     "process_name": {
-      "type": "string",
+      "type": "array",
       "title": "Process Name",
       "description": "Process name",
-      "order": 5
+      "items": {
+        "type": "string"
+      },
+      "order": 4
+    },
+    "time_range": {
+      "type": "string",
+      "title": "Time Range",
+      "description": "Time frame to limit your search to. Integer used for amount of of the following: s=second(s), m=minute(s), h=hour(s), d=day(s), w=week(s), or y=year(s)",
+      "order": 6
     }
   }
 }
-    """
-    )
+    """)
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
 
 
 class FindEventOutput(insightconnect_plugin_runtime.Output):
-    schema = json.loads(
-        """
+    schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
@@ -104,74 +107,76 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
         "backend_timestamp": {
           "type": "string",
           "title": "Backend Timestamp",
+          "displayType": "date",
           "description": "Backend timestamp",
-          "order": 56
+          "format": "date-time",
+          "order": 55
         },
         "device_external_ip": {
-          "type": "string",
+          "type": "array",
           "title": "Device External IP",
           "description": "Device external IP",
-          "order": 38
+          "items": {
+            "type": "string"
+          },
+          "order": 37
         },
         "device_group_id": {
           "type": "integer",
-          "title": "Device Group Id",
-          "description": "Device group id",
+          "title": "Device Group ID",
+          "description": "Device group ID",
           "order": 8
         },
         "device_id": {
           "type": "integer",
           "title": "Device ID",
           "description": "Device ID",
-          "order": 48
-        },
-        "device_installed_by": {
-          "type": "string",
-          "title": "Device Installed By",
-          "description": "Device installed by",
-          "order": 21
+          "order": 47
         },
         "device_internal_ip": {
           "type": "string",
           "title": "Device Internal IP",
           "description": "Device internal IP",
-          "order": 42
+          "order": 41
         },
         "device_location": {
           "type": "string",
           "title": "Device Location",
           "description": "Device location",
-          "order": 51
+          "order": 50
         },
         "device_name": {
-          "type": "string",
+          "type": "array",
           "title": "Device Name",
           "description": "Device name",
-          "order": 55
+          "items": {
+            "type": "string"
+          },
+          "order": 54
         },
         "device_os": {
           "type": "string",
-          "title": "Device Os",
-          "description": "Device os",
-          "order": 46
+          "title": "Device OS",
+          "description": "Device OS",
+          "order": 45
         },
         "device_os_version": {
           "type": "string",
           "title": "Device OS Version",
           "description": "Device OS version",
-          "order": 53
+          "order": 52
         },
         "device_policy": {
           "type": "string",
           "title": "Device Policy",
           "description": "Device policy",
-          "order": 58
+          "order": 57
         },
         "device_policy_id": {
           "type": "integer",
-          "title": "Device Policy Id",
+          "title": "Device Policy ID",
           "description": "Device policy ID",
-          "order": 47
+          "order": 46
         },
         "device_target_priority": {
           "type": "string",
@@ -182,26 +187,28 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
         "device_timestamp": {
           "type": "string",
           "title": "Device Timestamp",
+          "displayType": "date",
           "description": "Device timestamp",
+          "format": "date-time",
           "order": 15
         },
         "document_guid": {
           "type": "string",
           "title": "Document GUID",
           "description": "Document GUID",
-          "order": 24
+          "order": 23
         },
         "enriched": {
           "type": "boolean",
           "title": "Enriched",
           "description": "Enriched",
-          "order": 27
+          "order": 26
         },
         "enriched_event_type": {
           "type": "string",
           "title": "Enriched Event Type",
           "description": "Enriched event type",
-          "order": 26
+          "order": 25
         },
         "event_description": {
           "type": "string",
@@ -211,21 +218,21 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
         },
         "event_id": {
           "type": "string",
-          "title": "Event Id",
-          "description": "Event id",
-          "order": 22
+          "title": "Event ID",
+          "description": "Event ID",
+          "order": 21
         },
         "event_network_inbound": {
           "type": "boolean",
           "title": "Event Network Inbound",
           "description": "Event network inbound",
-          "order": 49
+          "order": 48
         },
         "event_network_local_ipv4": {
           "type": "string",
           "title": "Event Network Local IPv4",
           "description": "Event network local IPv4",
-          "order": 43
+          "order": 42
         },
         "event_network_location": {
           "type": "string",
@@ -237,13 +244,13 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "type": "string",
           "title": "Event Network Protocol",
           "description": "Event network protocol",
-          "order": 30
+          "order": 29
         },
         "event_network_remote_ipv4": {
           "type": "string",
           "title": "Event Network Remote IPv4",
           "description": "Event network remote IPv4",
-          "order": 33
+          "order": 32
         },
         "event_network_remote_port": {
           "type": "integer",
@@ -255,7 +262,7 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "type": "string",
           "title": "Event Report Code",
           "description": "Event report code",
-          "order": 40
+          "order": 39
         },
         "event_threat_score": {
           "type": "array",
@@ -264,7 +271,7 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "items": {
             "type": "integer"
           },
-          "order": 41
+          "order": 40
         },
         "event_type": {
           "type": "string",
@@ -276,7 +283,7 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "type": "integer",
           "title": "Ingress Time",
           "description": "Ingress time",
-          "order": 45
+          "order": 44
         },
         "legacy": {
           "type": "boolean",
@@ -300,19 +307,19 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "type": "integer",
           "title": "Netconn IPv4",
           "description": "Netconn IPv4",
-          "order": 39
+          "order": 38
         },
         "netconn_local_ipv4": {
           "type": "integer",
           "title": "Netconn Local IPv4",
           "description": "Netconn local IPv4",
-          "order": 28
+          "order": 27
         },
         "netconn_local_port": {
           "type": "integer",
           "title": "Netconn Local Port",
           "description": "Netconn local port",
-          "order": 52
+          "order": 51
         },
         "netconn_location": {
           "type": "string",
@@ -336,25 +343,25 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "type": "string",
           "title": "Org ID",
           "description": "Org ID",
-          "order": 54
+          "order": 53
         },
         "parent_effective_reputation": {
           "type": "string",
           "title": "Parent Effective Reputation",
           "description": "Parent effective reputation",
-          "order": 35
+          "order": 34
         },
         "parent_effective_reputation_source": {
           "type": "string",
           "title": "Parent Effective Reputation Source",
           "description": "Parent effective reputation source",
-          "order": 31
+          "order": 30
         },
         "parent_guid": {
           "type": "string",
           "title": "Parent GUID",
           "description": "Parent GUID",
-          "order": 23
+          "order": 22
         },
         "parent_hash": {
           "type": "array",
@@ -363,25 +370,25 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "items": {
             "type": "string"
           },
-          "order": 29
+          "order": 28
         },
         "parent_name": {
           "type": "string",
           "title": "Parent Name",
           "description": "Parent name",
-          "order": 37
+          "order": 36
         },
         "parent_pid": {
           "type": "integer",
           "title": "Parent PID",
           "description": "Parent PID",
-          "order": 57
+          "order": 56
         },
         "parent_reputation": {
           "type": "string",
           "title": "Parent Reputation",
           "description": "Parent reputation",
-          "order": 59
+          "order": 58
         },
         "process_cmdline": {
           "type": "array",
@@ -399,7 +406,7 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "items": {
             "type": "integer"
           },
-          "order": 25
+          "order": 24
         },
         "process_effective_reputation": {
           "type": "string",
@@ -417,7 +424,7 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "type": "string",
           "title": "Process GUID",
           "description": "Process GUID",
-          "order": 50
+          "order": 49
         },
         "process_hash": {
           "type": "array",
@@ -426,12 +433,15 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "items": {
             "type": "string"
           },
-          "order": 34
+          "order": 33
         },
         "process_name": {
-          "type": "string",
+          "type": "array",
           "title": "Process Name",
           "description": "Process name",
+          "items": {
+            "type": "string"
+          },
           "order": 2
         },
         "process_pid": {
@@ -441,19 +451,19 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
           "items": {
             "type": "integer"
           },
-          "order": 32
+          "order": 31
         },
         "process_reputation": {
           "type": "string",
           "title": "Process Reputation",
           "description": "Process reputation",
-          "order": 44
+          "order": 43
         },
         "process_sha256": {
           "type": "string",
           "title": "Process SHA-256",
           "description": "Process SHA-256",
-          "order": 36
+          "order": 35
         },
         "process_start_time": {
           "type": "string",
@@ -483,8 +493,7 @@ class FindEventOutput(insightconnect_plugin_runtime.Output):
     }
   }
 }
-    """
-    )
+    """)
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
