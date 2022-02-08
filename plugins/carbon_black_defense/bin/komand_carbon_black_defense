@@ -5,7 +5,7 @@ import json
 from sys import argv
 
 Name = "VMware Carbon Black Cloud Endpoint Standard"
-Vendor = "rapid7_a_blakley"
+Vendor = "rapid7"
 Version = "3.0.0"
 Description = "Find events and retrieve details for specific events"
 

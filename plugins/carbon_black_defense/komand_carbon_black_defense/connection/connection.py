@@ -23,14 +23,13 @@ class Connection(insightconnect_plugin_runtime.Connection):
         self.headers = {"X-Auth-Token": f"{self.token}/{self.connector}"}
 
     def get_job_id_for_enriched_event(
-        self, criteria: dict, exclusions: dict = None, time_range: dict = None, window: str = None
+        self, criteria: dict, exclusions: dict = None, time_range: dict = None
     ) -> Optional[dict]:
         response = self.call_api(
             "POST",
             f"{self.host}/api/investigate/v2/orgs/{self.org_key}/enriched_events/search_jobs",
-            json_data={"criteria": criteria, "exclusions": exclusions, "time_range": time_range, "window": window},
+            json_data={"criteria": criteria, "exclusions": exclusions, "time_range": {"window": time_range}},
         )
-
         return response.get("job_id")
 
     def get_enriched_event_status(self, job_id: str = None) -> bool:

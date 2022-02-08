@@ -38,12 +38,13 @@ class GetDetailsForSpecificEvent(insightconnect_plugin_runtime.Action):
                 detail_search_status = self.connection.check_status_of_detail_search(id_)
                 if (datetime.now() - t1).seconds > 60:
                     break
-            else:
                 time.sleep(3)
-            response = self.connection.retrieve_results_for_detail_search(job_id=id_)
-            data = insightconnect_plugin_runtime.helper.clean(response)
+            else:
+                break
+        response = self.connection.retrieve_results_for_detail_search(job_id=id_)
+        data = insightconnect_plugin_runtime.helper.clean(response)
 
-            return {
-                Output.SUCCESS: True,
-                Output.EVENTINFO: data,
-            }
+        return {
+            Output.SUCCESS: True,
+            Output.EVENTINFO: data,
+        }

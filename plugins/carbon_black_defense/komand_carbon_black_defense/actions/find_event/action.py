@@ -24,17 +24,18 @@ class FindEvent(insightconnect_plugin_runtime.Action):
         enriched_event_type = params.get(Input.ENRICHED_EVENT_TYPE)
         process_hash = params.get(Input.PROCESS_HASH)
         device_name = params.get(Input.DEVICE_NAME)
+        time_range = params.get(Input.TIME_RANGE)
 
         criteria = {}
 
         if device_external_ip:
             criteria["device_external_ip"] = device_external_ip
         if process_name:
-            criteria["process_name"] = [process_name]
+            criteria["process_name"] = process_name
         if enriched_event_type:
-            criteria["enriched_event_type"] = enriched_event_type
+            criteria["enriched_event_type"] = [enriched_event_type]
         if process_hash:
-            criteria["process_hash"] = [process_hash]
+            criteria["process_hash"] = process_hash
         if device_name:
             criteria["device_name"] = [device_name]
         if len(criteria) == 0:
@@ -42,8 +43,7 @@ class FindEvent(insightconnect_plugin_runtime.Action):
                 cause="Error. Have not entered a criteria for action to run.",
                 assistance="Enter a criteria of at least one plugin input.",
             )
-
-        id_ = self.connection.get_job_id_for_enriched_event(criteria)
+        id_ = self.connection.get_job_id_for_enriched_event(criteria, None, time_range)
 
         self.logger.info(f"Got enriched event job ID: {id_}")
         if id_ is None:
@@ -56,12 +56,13 @@ class FindEvent(insightconnect_plugin_runtime.Action):
                 enriched_event_search_status = self.connection.get_enriched_event_status(id_)
                 if (datetime.now() - t1).seconds > 60:
                     break
-            else:
                 time.sleep(3)
-            response = self.connection.retrieve_results_for_enriched_event(job_id=id_)
-            data = insightconnect_plugin_runtime.helper.clean(response)
+            else:
+                break
+        response = self.connection.retrieve_results_for_enriched_event(job_id=id_)
+        data = insightconnect_plugin_runtime.helper.clean(response)
 
-            return {
-                Output.SUCCESS: True,
-                Output.EVENTINFO: data,
-            }
+        return {
+            Output.SUCCESS: True,
+            Output.EVENTINFO: data,
+        }

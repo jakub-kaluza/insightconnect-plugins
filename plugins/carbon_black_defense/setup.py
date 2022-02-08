@@ -2,10 +2,10 @@
 from setuptools import setup, find_packages
 
 
-setup(name="carbon_black_defense-rapid7_a_blakley-plugin",
+setup(name="carbon_black_defense-rapid7-plugin",
       version="3.0.0",
       description="Find events and retrieve details for specific events",
-      author="rapid7_a_blakley",
+      author="rapid7",
       author_email="",
       url="",
       packages=find_packages(),

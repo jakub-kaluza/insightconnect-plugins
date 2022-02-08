@@ -18,7 +18,6 @@ from unit_tests.mock import (
 
 
 class TestGetDetailsForSpecificEvent(TestCase):
-
     def setUp(self) -> None:
         self.connection, self.action = Util.default_connector(GetDetailsForSpecificEvent())
 
@@ -49,7 +48,7 @@ class TestGetDetailsForSpecificEvent(TestCase):
     @patch("requests.request", side_effect=mock_request)
     def test_get_details_for_specific_event_unauthorized(self, mock_req):
         with self.assertRaises(PluginException) as exception:
-            self.connection.host = 'url_invalid'
+            self.connection.host = "url_invalid"
             self.action.run(
                 {
                     GetDetailsForSpecificEventtSchemaInput.EVENT_IDS: "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
@@ -62,7 +61,7 @@ class TestGetDetailsForSpecificEvent(TestCase):
     @patch("requests.request", side_effect=mock_request)
     def test_get_details_for_specific_event_forbidden(self, mock_req):
         with self.assertRaises(PluginException) as exception:
-            self.connection.org_key = 'org_key_forbidden'
+            self.connection.org_key = "org_key_forbidden"
             self.action.run(
                 {
                     GetDetailsForSpecificEventtSchemaInput.EVENT_IDS: "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
