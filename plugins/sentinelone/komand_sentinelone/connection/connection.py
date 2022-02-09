@@ -102,7 +102,7 @@ class Connection(insightconnect_plugin_runtime.Connection):
 
     def make_token_header(self):
         self.header = {
-            "Authorization": "Token %s" % (self.token),
+            "Authorization": f"Token {self.token}",
             "Content-Type": "application/json",
         }
 
@@ -149,13 +149,22 @@ class Connection(insightconnect_plugin_runtime.Connection):
             activities = self.activities_list(agent_filter)
         self.get_auth_token(self.url, self.username, self.password)
         response = self._call_api("GET", activities["data"][0]["data"]["filePath"][1:], full_response=True)
-        downloaded_zipfile = zipfile.ZipFile(io.BytesIO(response.content))
-        downloaded_zipfile.setpassword(password.encode("UTF-8"))
+        try:
+            file_name = activities["data"][-1]["data"]["fileDisplayName"]
+            with zipfile.ZipFile(io.BytesIO(response.content)) as downloaded_zipfile:
+                downloaded_zipfile.setpassword(password.encode("UTF-8"))
 
-        return {
-            "filename": activities["data"][-1]["data"]["fileDisplayName"],
-            "content": base64.b64encode(downloaded_zipfile.read(downloaded_zipfile.infolist()[-1])).decode("utf-8"),
-        }
+                return {
+                    "filename": file_name,
+                    "content": base64.b64encode(downloaded_zipfile.read(downloaded_zipfile.infolist()[-1])).decode(
+                        "utf-8"
+                    ),
+                }
+        except KeyError:
+            raise PluginException(
+                cause="An error occurred when trying to download file.",
+                assistance="Please contact support or try again later.",
+            )
 
     def threats_fetch_file(self, password: str, agents_filter: dict) -> int:
         self.get_auth_token(self.url, self.username, self.password)
@@ -172,7 +181,7 @@ class Connection(insightconnect_plugin_runtime.Connection):
         # API v2.0 and 2.1 have different responses -- revert to 2.0
         threats = self._call_api("GET", first_page_endpoint, override_api_version="2.0")
         all_threads_data = threats["data"]
-        next_cursor = threats["pagination"]["nextCursor"]
+        next_cursor = threats.get("pagination", {}).get("nextCursor")
 
         while next_cursor:
             next_threats = self._call_api(
@@ -210,7 +219,7 @@ class Connection(insightconnect_plugin_runtime.Connection):
                 }
             ]
         }
-        response = self._call_api("POST", "private/threats/ioc-create-threats", body)
+        response = self._call_api("POST", "private/threats/ioc-create-threats", body, full_response=True)
 
         return response.json()["data"]["affected"]
 
@@ -470,4 +479,3 @@ class Connection(insightconnect_plugin_runtime.Connection):
 
     def test(self):
         self.get_auth_token(self.url, self.username, self.password)
-        return
