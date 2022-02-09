@@ -6,9 +6,9 @@ import zipfile
 import insightconnect_plugin_runtime
 import requests
 from insightconnect_plugin_runtime.exceptions import ConnectionTestException, PluginException
+
 from komand_sentinelone.util.api import SentineloneAPI
 from komand_sentinelone.util.helper import Helper
-
 from .schema import ConnectionSchema, Input
 
 
@@ -379,7 +379,20 @@ class Connection(insightconnect_plugin_runtime.Connection):
             {"filter": {"ids": incident_ids}, "data": {"incidentStatus": incident_status}},
         )
 
-    def validate_incidents_exist(self, incident_ids: list, _type: str) -> list:
+    def remove_non_existing_incidents(self, incident_ids: list, _type: str) -> list:
+        """
+        This function checks each incident ID in the provided list
+        of incident IDs, against the SentinelOne instance, to see
+        if they exist. Only incident IDs that do exist within that
+        instance are returned.
+
+        @param incident_ids: list of incidents IDs to check if they
+        exist in the SentinelOne instance
+        @param _type: type of the incident - either 'threats' or
+        'alerts'
+        @return: returns a list of incident IDs that exist in the
+        SentinelOne instance
+        """
         for incident_id in incident_ids:
             response_data = self.get_incident(incident_id, _type).get("data")
             if isinstance(response_data, list) and response_data.__len__() == 0:
@@ -389,6 +402,25 @@ class Connection(insightconnect_plugin_runtime.Connection):
         return incident_ids
 
     def validate_incident_state(self, incident_ids: list, _type: str, new_state: str, attribute: str) -> list:
+        """
+        This function checks each incident ID in the provided list
+        of incident IDs, against the SentinelOne instance, validating
+        that the current value of a certain attribute (either
+        'analystVerdict' or 'incidentStatus') of the incident is
+        different to the 'new_state' attribute. Only incident IDs that
+        have different status are returned.
+
+        @param incident_ids: list of incidents IDs to validate the
+        status of in the SentinelOne instance
+        @param _type: type of the incident - either 'threats' or
+        'alerts'
+        @param new_state: the new state of the incident we wish to
+        update the incident status on
+        @param attribute: attribute to update, either 'analystVerdict'
+        or 'incidentStatus'
+        @return: returns a list of incidents that have different status
+        compared to the `new_state` argument
+        """
         for incident_id in incident_ids:
             response_data = self.get_incident(incident_id, _type).get("data")
             for incident in response_data:

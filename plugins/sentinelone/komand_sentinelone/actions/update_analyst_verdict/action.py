@@ -16,7 +16,9 @@ class UpdateAnalystVerdict(insightconnect_plugin_runtime.Action):
     def run(self, params={}):
         incident_type = params.get(Input.TYPE)
         analyst_verdict = params.get(Input.ANALYST_VERDICT).replace(" ", "_")
-        incidents = self.connection.validate_incidents_exist(list(set(params.get(Input.INCIDENT_IDS))), incident_type)
+        incidents = self.connection.remove_non_existing_incidents(
+            list(set(params.get(Input.INCIDENT_IDS))), incident_type
+        )
         incidents = self.connection.validate_incident_state(incidents, incident_type, analyst_verdict, "analystVerdict")
         if not incidents:
             raise PluginException(

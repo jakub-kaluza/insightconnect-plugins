@@ -4,7 +4,7 @@ import json
 
 
 class Component:
-    DESCRIPTION = "Update incident status"
+    DESCRIPTION = "Updates an incident status for each incident ID provided"
 
 
 class Input:

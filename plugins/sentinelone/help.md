@@ -97,7 +97,7 @@ This action is used to update analyst verdict.
 |Name|Type|Default|Required|Description|Enum|Example|
 |----|----|-------|--------|-----------|----|-------|
 |analyst_verdict|string|None|True|Analyst verdict|['true positive', 'suspicious', 'false positive', 'undefined']|true positive|
-|incident_ids|[]string|None|True|A list of alert or threat IDs to update the analyst verdict on|None|["1118189762920424575", "1118189762920424576"]|
+|incident_ids|[]string|None|True|A list of alert or threat IDs on which we may update the analyst verdict|None|["1118189762920424575", "1118189762920424576"]|
 |type|string|None|True|Type of incidents|['threats', 'alerts']|threats|
 
 Example input:

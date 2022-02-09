@@ -4,7 +4,7 @@ import json
 
 
 class Component:
-    DESCRIPTION = "Update analyst verdict"
+    DESCRIPTION = "Updates an analyst verdict for each incident ID provided"
 
 
 class Input:
@@ -38,7 +38,7 @@ class UpdateAnalystVerdictInput(insightconnect_plugin_runtime.Input):
     "incident_ids": {
       "type": "array",
       "title": "Incident IDs",
-      "description": "A list of alert or threat IDs to update the analyst verdict on",
+      "description": "A list of alert or threat IDs on which we may update the analyst verdict",
       "items": {
         "type": "string"
       },

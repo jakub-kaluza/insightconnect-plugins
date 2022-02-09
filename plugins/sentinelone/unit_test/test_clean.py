@@ -15,28 +15,34 @@ class TestClean(TestCase):
         self.assertEqual(expected, actual)
 
     def test_clean_object(self):
-        actual = clean([{
-            "key1": "value1",
-            "key2": None,
-            "key3": "None",
-            "computerMemberOf": [],
-            "lastUserMemberOf": "None",
-            "locations": "None",
-            "networkInterfaces": "None",
-            "inet": "None",
-            "inet6": "None",
-            "userActionsNeeded": ["stop"],
-        }])
-        expected = [{
-            'computerMemberOf': [],
-            'inet': [],
-            'inet6': [],
-            'key1': 'value1',
-            'key3': 'None',
-            'lastUserMemberOf': [],
-            'locations': [],
-            'networkInterfaces': [],
-            'userActionsNeeded': ['stop']
-        }]
+        actual = clean(
+            [
+                {
+                    "key1": "value1",
+                    "key2": None,
+                    "key3": "None",
+                    "computerMemberOf": [],
+                    "lastUserMemberOf": "None",
+                    "locations": "None",
+                    "networkInterfaces": "None",
+                    "inet": "None",
+                    "inet6": "None",
+                    "userActionsNeeded": ["stop"],
+                }
+            ]
+        )
+        expected = [
+            {
+                "computerMemberOf": [],
+                "inet": [],
+                "inet6": [],
+                "key1": "value1",
+                "key3": "None",
+                "lastUserMemberOf": [],
+                "locations": [],
+                "networkInterfaces": [],
+                "userActionsNeeded": ["stop"],
+            }
+        ]
 
         self.assertEqual(expected, actual)

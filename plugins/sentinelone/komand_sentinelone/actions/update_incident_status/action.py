@@ -16,7 +16,9 @@ class UpdateIncidentStatus(insightconnect_plugin_runtime.Action):
     def run(self, params={}):
         incident_type = params.get(Input.TYPE)
         incident_status = params.get(Input.INCIDENT_STATUS).replace(" ", "_")
-        incidents = self.connection.validate_incidents_exist(list(set(params.get(Input.INCIDENT_IDS))), incident_type)
+        incidents = self.connection.remove_non_existing_incidents(
+            list(set(params.get(Input.INCIDENT_IDS))), incident_type
+        )
         incidents = self.connection.validate_incident_state(incidents, incident_type, incident_status, "incidentStatus")
         if not incidents:
             raise PluginException(

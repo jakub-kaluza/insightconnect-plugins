@@ -2601,11 +2601,11 @@ actions:
         required: false
   update_analyst_verdict:
     title: Update Analyst Verdict
-    description: Update analyst verdict
+    description: Updates an analyst verdict for each incident ID provided
     input:
       incident_ids:
         title: Incident IDs
-        description: A list of alert or threat IDs to update the analyst verdict on
+        description: A list of alert or threat IDs on which we may update the analyst verdict
         type: "[]string"
         example: ["1118189762920424575", "1118189762920424576"]
         required: true
@@ -2637,7 +2637,7 @@ actions:
         required: false
   update_incident_status:
     title: Update Incident Status
-    description: Update incident status
+    description: Updates an incident status for each incident ID provided
     input:
       incident_ids:
         title: Incident IDs
