@@ -4,6 +4,7 @@ import os
 from unit_tests.util import Util
 
 STUB_JOB_ID = "5058b0b4-701a-414e-9630-430d2cddbf4d"
+STUB_JOB_ID_DETAIL_SEARCH = "86a8abc0-95f3-4353-adf5-abb631c1f824"
 STUB_HOST_VALID = "url"
 STUB_HOST_INVALID = "url_invalid"
 STUB_ORG_KEY_VALID = "org_key"
@@ -53,13 +54,13 @@ def mock_request(*args, **kwargs):
             return MockResponse("retrieve_results_for_enriched_event", 200)
         if (
             args[1]
-            == f"{STUB_HOST_VALID}/api/investigate/v2/orgs/{STUB_ORG_KEY_VALID}/enriched_events/detail_jobs/{STUB_JOB_ID}"
+            == f"{STUB_HOST_VALID}/api/investigate/v2/orgs/{STUB_ORG_KEY_VALID}/enriched_events/detail_jobs/{STUB_JOB_ID_DETAIL_SEARCH}"
         ):
             return MockResponse("check_status_of_detail_search", 200)
         if (
             args[1]
-            == f"{STUB_HOST_VALID}/api/investigate/v2/orgs/{STUB_ORG_KEY_VALID}/enriched_events/detail_jobs/{STUB_JOB_ID}/results"
+            == f"{STUB_HOST_VALID}/api/investigate/v2/orgs/{STUB_ORG_KEY_VALID}/enriched_events/detail_jobs/{STUB_JOB_ID_DETAIL_SEARCH}/results"
         ):
             return MockResponse("retrieve_results_for_detail_search", 200)
-
+    print(args[0],args[1])
     raise Exception("Response has been not implemented")

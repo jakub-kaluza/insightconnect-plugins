@@ -33,11 +33,11 @@ class FindEvent(insightconnect_plugin_runtime.Action):
         if process_name:
             criteria["process_name"] = process_name
         if enriched_event_type:
-            criteria["enriched_event_type"] = [enriched_event_type]
+            criteria["enriched_event_type"] = enriched_event_type
         if process_hash:
             criteria["process_hash"] = process_hash
         if device_name:
-            criteria["device_name"] = [device_name]
+            criteria["device_name"] = device_name
         if len(criteria) == 0:
             raise PluginException(
                 cause="Error. Have not entered a criteria for action to run.",

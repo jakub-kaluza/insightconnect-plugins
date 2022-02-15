@@ -9,7 +9,7 @@ from komand_carbon_black_defense.actions.find_event import FindEvent
 from komand_carbon_black_defense.actions.find_event.schema import Input as FindEventSchemaInput
 from unit_tests.util import Util
 from insightconnect_plugin_runtime.exceptions import PluginException
-
+from komand_carbon_black_defense.connection.schema import Input
 from unit_tests.mock import (
     mock_request,
 )
@@ -21,14 +21,16 @@ class TestFindEvent(TestCase):
         self.params = {
             "device_external_ip": ["2001:db8:1:1:1:1:1:1"],
             "process_name": ["svchost.exe"],
-            "enriched_event_type": "CREATE_PROCESS",
+            "enriched_event_type": ["CREATE_PROCESS"],
             "process_hash": ["275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"],
-            "device_name": "\.",
+            "device_name": ["\."],
             "time_range": "-2d",
         }
 
+
     def setUp(self) -> None:
         self.connection, self.action = Util.default_connector(FindEvent())
+
 
     # test finding event via all inputs
     @patch("requests.request", side_effect=mock_request)

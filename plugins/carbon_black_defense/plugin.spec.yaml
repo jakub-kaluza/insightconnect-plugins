@@ -463,7 +463,7 @@ actions:
       device_name:
         title: "Device Name"
         description: "Device name"
-        type: string
+        type: "[]string"
         required: false
         example: "CONTOSO\\bruce-win10"
       device_external_ip:
@@ -487,13 +487,13 @@ actions:
         example: "c:\\windows\\system32\\windowspowershell\\v1.0\\modules\\smbshare\\disableunusedsmb1.ps1"
       enriched_event_type:
         title: "Enriched Event Type"
-        type: "string"
+        type: "[]string"
         description: "Enriched event type"
         required: false
         example: "SYSTEM_API_CALL"
       time_range:
         title: "Time Range"
-        type: "string"
+        type: string
         description: "Time frame to limit your search to. Integer used for amount of of the following: s=second(s), m=minute(s), h=hour(s), d=day(s), w=week(s), or y=year(s)"
         required: false
         example: "-2d"

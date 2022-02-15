@@ -37,15 +37,21 @@ class FindEventInput(insightconnect_plugin_runtime.Input):
       "order": 2
     },
     "device_name": {
-      "type": "string",
+      "type": "array",
       "title": "Device Name",
       "description": "Device name",
+      "items": {
+        "type": "string"
+      },
       "order": 1
     },
     "enriched_event_type": {
-      "type": "string",
+      "type": "array",
       "title": "Enriched Event Type",
       "description": "Enriched event type",
+      "items": {
+        "type": "string"
+      },
       "order": 5
     },
     "process_hash": {
