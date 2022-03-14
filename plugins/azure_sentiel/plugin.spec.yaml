@@ -1,0 +1,1549 @@
+plugin_spec_version: v2
+extension: plugin
+products: [insightconnect]
+name: azure_sentiel
+title: Azure Sentiel Plugin
+vendor: rapid7
+support: community
+status: []
+description: Azure Sentiel is Azures automated security
+version: 1.0.1
+# Input common to all the actions
+input_base: &ibase
+  resourceGroupName:
+    title: Resource Group Name
+    required: true
+    description: The name of the resource group within the user's subscription. The name is case insensitive.
+    type: string
+  workspaceName:
+    title: Workspace Name
+    required: true
+    description: The name of the workspace
+    type: string
+  api-version:
+    title: API version
+    description: The API version to use for this operation.
+    required: true
+    type: string
+resources:
+  source_url: https://github.com/rapid7/insightconnect-plugins/tree/master/plugins/azure_sentiel
+  license_url: https://github.com/rapid7/insightconnect-plugins/blob/master/LICENSE
+  vendor_url: https://www.microsoft.com/
+tags:
+  - cloud
+  - Azure Sentiel
+  - VM
+hub_tags:
+  use_cases: [threat_detection_and_response]
+  keywords: [azure, incidents, cloud, microsoft, incident comments]
+  features: [create comment, delete comment, get comment, list comments]
+types:
+  UserInfo:
+    email:
+      description: The email of the user.
+      title: Email
+      type: string
+    name:
+      description: The name of the user.
+      title: Name 
+      type: string
+    objectId:
+      description: The object id of the user.
+      title: Object Identification 
+      type: string 
+  person:
+    objectId:
+      title: "Person's Object ID"
+      type: string
+    email:
+      title: "Persons's Email"
+      type: string
+    userPrincipalName:
+      title: "Persons's principal name"
+      type: string
+    authorsName:
+      title: "Person's name"
+      type: string
+  ## Types related to watchlist items
+  CreatedByType:
+    # There is little information in the documentation on this type.
+    Application:
+      description: Application
+      title: Application
+      type: string
+    Key:
+      description: Description 
+      title: Key
+      type: string
+    ManagedIdentity:
+      description: Managed Identity
+      title: Managed Indetity
+      type: string
+    User:
+      description: User
+      title: User 
+      type: string
+  SystemData:
+    createdAt:
+      description: The timestamp of resource creation (UTC).
+      title: The timestamp of resource creation (UTC).
+      type: date
+    createdBy:
+      description: The identity that created the resource.
+      title: The identity that created the resource.
+      type: string
+    createdByType:
+      description: The type of identity that created the resource.
+      title: The type of identity that created the resource.
+      type: CreatedByType
+    lastModifiedAt:
+      description: The timestamp of resource last modification (UTC)
+      title: The timestamp of resource last modification (UTC)
+      type: date
+    lastModifiedBy:
+      description: The identity that last modified the resource.
+      title: The identity that last modified the resource.
+      type: string
+    lastModifiedByType:
+      description: The type of identity that last modified the resource.
+      title: The type of identity that last modified the resource.
+      type: CreatedByType
+  WatchlistItemProperties:
+    created:
+      description: The time the watchlist item was created
+      title: The time the watchlist item was created
+      type: string
+    createdBy:
+      description: Describes a user that created the watchlist item
+      title: Describes a user that created the watchlist item
+      type: UserInfo
+    entityMapping:
+      description: key-value pairs for a watchlist item entity mapping
+      title: key-value pairs for a watchlist item entity mapping
+      type: object
+    etag:
+      description: Etag of the azure resource
+      title: Etag of the azure resource
+      type: string
+    id:
+      description: Azure resource Id
+      title: Azure resource Id
+      type: string
+    isDeleted:
+      description: A flag that indicates if the watchlist item is deleted or not
+      title: A flag that indicates if the watchlist item is deleted or not
+      type: boolean
+    itemsKeyValue:
+      description: key-value pairs for a watchlist item
+      title: key-value pairs for a watchlist item
+      type: object
+    name:
+      description: Azure resource name
+      title: Azure resource name
+      type: string
+    systemData:
+      description: Azure Resource Manager metadata containing createdBy and modifiedBy
+        information.
+      title: Azure Resource Manager metadata containing createdBy and modifiedBy information.
+      type: SystemData
+    tenantId:
+      description: The tenantId to which the watchlist item belongs to
+      title: The tenantId to which the watchlist item belongs to
+      type: string
+    type:
+      description: Azure resource type
+      title: Azure resource type
+      type: string
+    updated:
+      description: The last time the watchlist item was updated
+      title: The last time the watchlist item was updated
+      type: string
+    updatedBy:
+      description: Describes a user that updated the watchlist item
+      title: Describes a user that updated the watchlist item
+      type: UserInfo
+    watchlistItemId:
+      description: The id (a Guid) of the watchlist item
+      title: The id (a Guid) of the watchlist item
+      type: string
+    watchlistItemType:
+      description: The type of the watchlist item
+      title: The type of the watchlist item
+      type: string
+  ## Types related to Watchlists
+  WatchlistProperties:
+    contentType:
+      description: The content type of the raw content. For now, only text/csv is valid
+      title: Content Type
+      type: string
+    created:
+      description: The time the watchlist was created
+      title: The time the watchlist was created
+      type: string
+    createdBy:
+      description: Describes a user that created the watchlist
+      title: Created By
+      type: UserInfo
+    defaultDuration:
+      description: The default duration of a watchlist (in ISO 8601 duration format)
+      title: Default Duration
+      type: string
+    description:
+      description: A description of the watchlist
+      title: A description of the watchlist
+      type: string
+    displayName:
+      description: The display name of the watchlist
+      title: The display name of the watchlist
+      type: string
+    isDeleted:
+      description: A flag that indicates if the watchlist is deleted or not
+      title: isDeleted flag
+      type: boolean
+    itemsSearchKey:
+      description: The search key is used to optimize query performance when using watchlists
+        for joins with other data. For example, enable a column with IP addresses to
+        be the designated SearchKey field, then use this field as the key field when
+        joining to other event data by IP address.
+      title: Items Search Key 
+      type: string
+    labels:
+      description: List of labels relevant to this watchlist
+      title: List of labels relevant to this watchlist
+      type: "[]string"
+    numberOfLinesToSkip:
+      description: The number of lines in a csv content to skip before the header
+      title: Number of lines to skip
+      type: integer
+    provider:
+      description: The provider of the watchlist
+      title: The provider of the watchlist
+      type: string
+    rawContent:
+      description: 'The raw content that represents to watchlist items to create. Example
+        : This line will be skipped header1,header2 value1,value2'
+      title: Raw Content
+      type: string
+    source:
+      description: The source of the watchlist
+      title: The source of the watchlist
+      type: string
+      enum:
+        - "Local File"
+        - "Remote Storage"
+    tenantId:
+      description: The tenantId where the watchlist belongs to
+      title: The tenantId where the watchlist belongs to
+      type: string
+    updated:
+      description: The last time the watchlist was updated
+      title: The last time the watchlist was updated
+      type: string
+    updatedBy:
+      description: Describes a user that updated the watchlist
+      title: Describes a user that updated the watchlist
+      type: UserInfo
+    uploadStatus:
+      description: 'The status of the Watchlist upload : New, InProgress or Complete.
+        Note : When a Watchlist upload status is InProgress, the Watchlist cannot be
+        deleted'
+      title: Watchlist Upload Status 
+      type: string
+      enum:
+        - New
+        - InProgress
+        - Complete
+    watchlistAlias:
+      description: The alias of the watchlist
+      title: The alias of the watchlist
+      type: string
+    watchlistId:
+      description: The id (a Guid) of the watchlist
+      title: The id (a Guid) of the watchlist
+      type: string
+    watchlistType:
+      description: The type of the watchlist
+      title: The type of the watchlist
+      type: string
+  ## ThreatInteligence Types
+  ThreatIntelligenceKillChainPhase:
+    killChainName:
+      title: Kill chainName name
+      description: Kill chainName name
+      type: string
+    phaseName:
+      title: Phase name
+      description: Phase name
+      type: string
+  ThreatIntelligenceParsedPatternTypeValue:
+    value:
+      title: Value
+      description: Value
+      type: string
+    valueType:
+      title: Value Type
+      description: Type of the value
+      type: string
+  ThreatIntelligenceParsedPattern:
+    patternTypeKey:
+      title: Pattern Type Key
+      description: Pattern Type Key
+      type: string
+    patternTypeValues:
+      title: Pattern Type Values
+      description: Pattern Type Values
+      type: "[]ThreatIntelligenceParsedPatternTypeValue"
+  ThreatIntelligenceGranularMarkingModel:
+    language:
+      title: Language granular marking model
+      description: Language granular marking model
+      type: string
+    markingRef:
+      title: marking reference granular marking model
+      description: marking reference granular marking model
+      type: integer
+    selectors:
+      title: granular marking model selectors
+      description: granular marking model selectors
+      type: "[]string"
+  ThreatIntelligenceExternalReference:
+    description:
+      title: External reference description
+      description: External reference description
+      type: string
+    externalId:
+      title: External reference ID
+      description: External reference ID
+      type: string
+    hashes:
+      title: External reference hashes
+      description: External reference hashes
+      type: object
+    sourceName:
+      title: External reference source name
+      description: External reference source name
+      type: string
+    url:
+      title: External reference URL
+      description: External reference URL
+      type: string
+  ThreatIntelligenceSortingCriteria:
+    itemKey:
+      title: Item Key.
+      description: Column name to sort by.
+      type: string
+    sortOrder:
+      title: Sorting Order.
+      description: Sorting Order.
+      type: string
+      enum:
+        - ascending
+        - descending
+        - unsorted
+  ThreatIntelligenceIndicatorProperties:
+    confidence:
+        title: Confidence of threat intelligence entity
+        description: Confidence of threat intelligence entity
+        type: integer
+    created:
+        title: Created by
+        description: Created by
+        type: string
+    createdByRef:
+        title: Created by reference of threat intelligence entity
+        description: Created by reference of threat intelligence entity
+        type: string
+    defanged:
+        title: Is threat intelligence entity defanged
+        description: Is threat intelligence entity defanged
+        type: boolean
+    description:
+        title: Description of a threat intelligence entity
+        description: Description of a threat intelligence entity
+        type: string
+    displayName:
+        title: Display name of a threat intelligence entity
+        description: Display name of a threat intelligence entity
+        type: string
+    externalId:
+        title: External ID of threat intelligence entity
+        description: External ID of threat intelligence entity
+        type: string
+    externalLastUpdatedTimeUtc:
+        title: External last updated time in UTC
+        description: External last updated time in UTC
+        type: string
+    externalReferences:
+        title: External References
+        description: External References
+        type: "[]ThreatIntelligenceExternalReference"
+    granularMarkings:
+        title: Granular Markings
+        description: Granular Markings
+        type: "[]ThreatIntelligenceGranularMarkingModel"
+    indicatorTypes:
+        title: Indicator types of threat intelligence entities
+        description: Indicator types of threat intelligence entities
+        type: "[]string"
+    killChainPhases:
+        title: Kill chain phases
+        description: Kill chain phases
+        type: "[]ThreatIntelligenceKillChainPhase"
+    labels:
+        title: Labels of threat intelligence entity
+        description: Labels of threat intelligence entity
+        type: "[]string"
+    language:
+        title: Language of threat intelligence entity
+        description: Language of threat intelligence entity
+        type: string
+    lastUpdatedTimeUtc:
+        title: Last updated time in UTC
+        description: Last updated time in UTC
+        type: string
+    modified:
+        title: Modified by
+        description: Modified by
+        type: string
+    objectMarkingRefs:
+        title: Threat intelligence entity object marking references
+        description: Threat intelligence entity object marking references
+        type: "[]string"
+    parsedPattern:
+        title: Parsed patterns
+        description: Parsed patterns
+        type: "[]ThreatIntelligenceParsedPattern"
+    pattern:
+        title: Pattern of a threat intelligence entity
+        description: Pattern of a threat intelligence entity
+        type: string
+    patternType:
+        title: Pattern type of a threat intelligence entity
+        description: Pattern type of a threat intelligence entity
+        type: string
+    patternVersion:
+        title: Pattern version of a threat intelligence entity
+        description: Pattern version of a threat intelligence entity
+        type: string
+    revoked:
+        title: Is threat intelligence entity revoked
+        description: Is threat intelligence entity revoked
+        type: boolean
+    source:
+        title: Source of a threat intelligence entity
+        description: Source of a threat intelligence entity
+        type: string
+    threatIntelligenceTags:
+        title: List of tags
+        description: List of tags
+        type: "[]string"
+    threatTypes:
+        title: Threat types
+        description: Threat types
+        type: "[]string"
+    validFrom:
+        title: Valid from
+        description: Valid from
+        type: string
+    validUntil:
+        title: Valid until
+        description: Valid until
+        type: string
+connection:
+  host:
+    title: Host
+    type: string
+    description: Azure REST API Server
+    required: true
+    default: https://management.azure.com
+  client_id:
+    title: Client ID
+    type: string
+    description: The application ID that the application registration portal assigned
+      to your app
+    required: true
+  client_secret:
+    title: Client Secret
+    type: credential_asymmetric_key
+    description: The application secret that you generated for your app in the app
+      registration portal
+    required: true
+  tenant_id:
+    title: Tenant ID
+    type: string
+    description: This is active directory ID
+    required: true
+  api_version:
+    title: API Version
+    type: string
+    description: The version of the API to use. The current version is 2016-04-30-preview
+    required: true
+    default: 2016-04-30-preview
+actions:
+  create_comment:
+    title: Create Comment
+    description: Creates or updates a comment for a given incident. 
+    input:
+      incidentCommentId:
+        title: Incident Comment ID
+        required: true
+        description: Incident Comment ID
+        type: string
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      propertiesMessage:
+        title: Properties Message
+        required: true
+        description: The comment message
+        type: string
+      etag:
+        title: etag
+        description: etag of the azure resource
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+    output:
+      id:
+        title: Full Comment ID
+        type: string
+      name:
+        title: Comment ID
+        type: string
+      type:
+        title: Name
+        type: string
+      etag:
+        title: etag
+        type: string
+      message:
+        title: Incident Message
+        type: string
+      createdTimeUtc:
+        title: Message Creation Time
+        type: date
+      lastModifiedTimeUtc:
+        title: Message Last Modification Time
+        type: date
+      author:
+        title: "Author's details"
+        type: person
+  get_comment:
+    title: Get Comment
+    description: Gets a comment for a given incident. 
+    input:
+      incidentCommentId:
+        title: Incident Comment ID
+        required: true
+        description: Incident Comment ID
+        type: string
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+    output:
+      id:
+        title: Full Comment ID
+        type: string
+      name:
+        title: Comment ID
+        type: string
+      type:
+        title: Name
+        type: string
+      etag:
+        title: etag
+        type: string
+      message:
+        title: Incident Message
+        type: string
+      createdTimeUtc:
+        title: Message Creation Time
+        type: date
+      lastModifiedTimeUtc:
+        title: Message Last Modification Time
+        type: date
+      author:
+        title: "Author's details"
+        type: person
+  list_comments:
+    title: Get Comments
+    description: Gets all the comments for a given incident.
+    input:
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      filter:
+        title: filter the results
+        required: false
+        description: Filters the results, based on a Boolean condition. Optional.
+        type: string
+      orderBy:
+        title: order the results
+        required: false
+        description: sorts the results 
+        type: string
+      skipToken:
+        title: order the results
+        required: false
+        description: "Skiptoken is only used if a previous operation returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls." 
+        type: string
+      top:
+        title: Return top results
+        required: false
+        description: Return only n first results. 
+        type: integer
+    output:
+      comments:
+        title: comments
+        description: list of comment objects
+        type: "[]object"
+  delete_comment:
+    title: Delete Comment
+    description: Deletes a comment for a given incident. 
+    input:
+      incidentCommentId:
+        title: Incident Comment ID
+        required: true
+        description: Incident Comment ID
+        type: string
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+    output:
+      status:
+        title: Status
+        description: Status of the requested operation e.g. success, error, etc
+        type: string
+        required: true
+  create_incident:
+    title: Create Comment
+    description: Creates or updates a comment for a given incident. 
+    input:
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      etag:
+        title: etag
+        description: etag of the azure resource
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      title:
+        title: Incidents title
+        description: The Incidents title
+        required: true
+        type: string
+      severity:
+        title: Incidents severity
+        description: Incidents severity
+        required: true
+        type: string
+        enum:
+          - High
+          - Informational
+          - Low
+          - Medium
+      status:
+        title: Incidents status
+        description: Incidents status
+        required: true
+        type: string
+        enum:
+          - Active
+          - Closed
+          - New
+    output:
+      id:
+        title: Full Incident ID
+        type: string
+      name:
+        title: Incident ID
+        type: string
+      type:
+        title: Name
+        type: string
+      etag:
+        title: etag
+        type: string
+      title:
+        title: Incident Title
+        type: string
+      description:
+        title: Incident description
+        type: string
+      severity:
+        title: Severity level
+        type: string
+      status:
+        title: etag
+        type: string
+      classification:
+        title: classification
+        type: string
+      classificationReason:
+        title: classification reason
+        type: string
+      classificationComment:
+        title: classification comment
+        type: string
+      labels:
+        title: etag
+        type: "[]string"
+      firstActivityTimeUt:
+        title: first activity time in utc
+        type: date
+      lastActivityTimeUtc:
+        title: last activity time in utc
+        type: date
+      lastModifiedTimeUtc:
+        title: Last modified time in utc
+        type: date
+      createdTimeUtc:
+        title: creation time in utc
+        type: date
+      incidentNumber:
+        title: Incident number
+        type: integer
+      relatedAnalyticRuleIds:
+        title: Ids of related incidents
+        type: "[]string"
+      incidentUrl: 
+        title: incidents url
+        type: "string"
+      ownersObjectId:
+        title: Owners's object ID
+        type: "string"
+      email:
+        title: Owner's email
+        type: "string"
+      userPrincipalName:
+        title: Owner's principal name
+        type: "string"
+      assignedTo:
+        title: assigned to
+        type: "string"
+      alertsCount:
+        title: Alerts Count
+        type: integer
+      bookmarksCount:
+        title: Bookmarks Count
+        type: integer
+      commentsCount:
+        title: Comments count
+        type: integer
+      alertProductNames:
+        title: Alert product names
+        type: "[]string"
+      tactics:
+        title: tacticts
+        type: "[]string"
+  list_incidents:
+    title: Get Comments
+    description: Gets all the comments for a given incident.
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      filter:
+        title: filter the results
+        required: false
+        description: Filters the results, based on a Boolean condition. Optional.
+        type: string
+      orderBy:
+        title: order the results
+        required: false
+        description: sorts the results 
+        type: string
+      skipToken:
+        title: order the results
+        required: false
+        description: "Skiptoken is only used if a previous operation returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls." 
+        type: string
+      top:
+        title: Return top results
+        required: false
+        description: Return only n first results. 
+        type: integer
+    output:
+      Incidents:
+        title: List of incidents
+        description: list of incidents objects 
+        type: "[]object"
+  get_incident:
+    title: Get Incident
+    description: Get all incidents from a given workspace and resource group
+    input:
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+    output:
+      incident:
+        title: Output incident
+        description: The queried incident
+        type: object
+  delete_incident:
+    title: Get Incident
+    description: Get all incidents from a given workspace and resource group
+    input:
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+    output:
+      status:
+        title: deletion status
+        description: deletion status
+        type: string
+  list_alerts:
+    title: List Comments
+    description: Get all incidents alerts
+    input:
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      filter:
+        title: filter the results
+        required: false
+        description: Filters the results, based on a Boolean condition. Optional.
+        type: string
+      orderBy:
+        title: order the results
+        required: false
+        description: sorts the results 
+        type: string
+      skipToken:
+        title: order the results
+        required: false
+        description: "Skiptoken is only used if a previous operation returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls." 
+        type: string
+      top:
+        title: Return top results
+        required: false
+        description: Return only n first results. 
+        type: integer
+    output:
+      alerts:
+        title: Alert List
+        description: All the alerts assigned to the given incident.
+        type: "[]object"
+  list_bookmarks:
+    title: List Bookmarks
+    description: Get all incidents bookmarks
+    input:
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      filter:
+        title: filter the results
+        required: false
+        description: Filters the results, based on a Boolean condition. Optional.
+        type: string
+      orderBy:
+        title: order the results
+        required: false
+        description: sorts the results 
+        type: string
+      skipToken:
+        title: order the results
+        required: false
+        description: "Skiptoken is only used if a previous operation returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls." 
+        type: string
+      top:
+        title: Return top results
+        required: false
+        description: Return only n first results. 
+        type: integer
+    output:
+      bookmarks:
+        title: Bookmark List
+        description: All the bookmarks assigned to the given incident.
+        type: "[]object"
+  list_entities:
+    title: List entities
+    description: Get all incidents entities
+    input:
+      incidentId:
+        title: Incident ID
+        required: true
+        description: Incident ID
+        type: string
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      filter:
+        title: filter the results
+        required: false
+        description: Filters the results, based on a Boolean condition. Optional.
+        type: string
+      orderBy:
+        title: order the results
+        required: false
+        description: sorts the results 
+        type: string
+      skipToken:
+        title: order the results
+        required: false
+        description: "Skiptoken is only used if a previous operation returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls." 
+        type: string
+      top:
+        title: Return top results
+        required: false
+        description: Return only n first results. 
+        type: integer
+    output:
+      entities:
+        title:  List
+        description: All the entities assigned to the given incident.
+        type: "[]object"
+  query_indicators:
+    title: Query Threat Indicators
+    description: Query threat intelligence indicators as per filtering criteria.
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      ids:
+        title: Threat Inteligence Indicators Ids
+        description: Ids of threat intelligence indicators
+        type: "[]string"
+      includeDisabled:
+        title: Include Disabled Indicators
+        description: Parameter to include/exclude disabled indicators.
+        type: boolean
+      keywords:
+        title: Keywords
+        description: Keywords for searching threat intelligence indicators
+        type: "[]string"
+      maxConfidence:
+        title: Maximum Confidence
+        description: Maximum confidence.
+        type: integer
+        example: 75
+      minConfidence:
+        title: Minimum Confidence
+        description: Minimum confidence.
+        type: integer
+        example: 0
+      maxValidUntil:
+        title: End time for ValidUntil filter.
+        description: End time for ValidUntil filter.
+        type: string
+      minValidUntil:
+        title: Start time for ValidUntil filter.
+        description: Start time for ValidUntil filter.
+        type: string
+      pageSize:
+        title: Page Size.
+        description: Page Size.
+        type: integer
+      patternTypes:
+        title: Pattern Types.
+        description: Pattern Types.
+        type: integer
+      skipToken:
+        title: Skip Token.
+        description: Skip Token.
+        type: string
+      sortBy:
+        title: Sort By
+        description: Columns to sort by and sorting order
+        type: "[]ThreatIntelligenceSortingCriteria"
+      sources:
+        title: Sources of threat intelligence indicators.
+        description: Sources of threat intelligence indicators.
+        type: "[]string"
+      threatTypes:
+        title: Threat Types of Threat Inteligence Indicators.
+        description: Threat Types of Threat Inteligence Indicators.
+        type: "[]string"
+    output:
+      indicators:
+        title: Threat Intelligence Indicators.
+        description: output threat intelligence indicators.
+        type: "[]object"
+  create_indicator:
+    title: Create Threat Intelligence Indicator
+    description: Create new threat intelligence indicator
+    input:
+      <<: *ibase
+      etag:
+        title: Etag of the azure resource
+        description: Etag of the azure resource
+        type: string
+      properties:
+        title: Properties of the intelligence indicator.
+        description: Object containing all the necessary properties to conclude a query.
+        type: ThreatIntelligenceIndicatorProperties
+        required: true
+  update_indicator:
+    title: Update Threat Intelligence Indicator
+    description: Update existing threat intelligence indicator
+    input:
+      <<: *ibase
+      name:
+        title: Threat intelligence indicator name field.
+        description: Threat intelligence indicator name field.
+        type: string
+        required: true
+      etag:
+        title: Etag of the azure resource
+        description: Etag of the azure resource
+        type: string
+      properties:
+        title: Properties of the intelligence indicator.
+        description: Object containing all the necessary properties to conclude a query.
+        type: ThreatIntelligenceIndicatorProperties
+        required: true
+  get_indicator:
+    title: Get Threat Intelligence Indicator
+    description: Get existing threat intelligence indicator
+    input:
+      <<: *ibase
+      name:
+        title: Threat intelligence indicator name field.
+        description: Threat intelligence indicator name field.
+        type: string
+        required: true
+  delete_indicator:
+    title: Delete Threat Intelligence Indicator
+    description: Delete existing threat intelligence indicator
+    input:
+      <<: *ibase
+      name:
+        title: Threat intelligence indicator name field.
+        description: Threat intelligence indicator name field.
+        type: string
+        required: true
+  # Indicator Tags
+  append_tags:
+    title: Append Tags
+    description: Append tags to a threat intelligence indicator.
+    input:
+      <<: *ibase
+      name:
+        title: Threat intelligence indicator name field.
+        description: Threat intelligence indicator name field.
+        type: string
+        required: true
+      threatIntelligenceTags:
+        title: List of tags to be appended.
+        description: List of tags to be appended.
+        type: "[]string"
+  replace_tags:
+    title: Replace Tags
+    description: Replace tags to a threat intelligence indicator.
+    input:
+      <<: *ibase
+      name:
+        title: Threat intelligence indicator name field.
+        description: Threat intelligence indicator name field.
+        type: string
+        required: true
+      properties:
+        title: Properties of the intelligence indicator.
+        description: Object containing all the necessary properties to conclude a query. Only property that affects the API is threatIntelligenceTags.
+        type: ThreatIntelligenceIndicatorProperties
+        required: true
+  # Watchlists
+  create_update_watchlist:
+    title: Create or update a watchlist
+    description: 'Create or update a Watchlist and its Watchlist Items (bulk creation, e.g. through text/csv content type). To create a Watchlist and its Items, we should call this endpoint with rawContent and contentType properties.'
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      watchlistAlias:
+        title: Watchlist Alias
+        description: The watchlist alias
+        type: string
+        required: true
+      properties:
+        title: Watchlist Properties
+        description: all the properties included in the body of the query.
+        type: WatchlistProperties
+        required: true
+  get_watchlist:
+    title: get a watchlist
+    description: 'Get a watchlist'
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      watchlistAlias:
+        title: Watchlist Alias
+        description: The watchlist alias
+        type: string
+        required: true
+  delete_watchlist:
+    title: delete a watchlist
+    description: 'Delete a watchlist'
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      watchlistAlias:
+        title: Watchlist Alias
+        description: The watchlist alias
+        type: string
+        required: true
+  list_watchlists:
+    title: List a watchlist
+    description: 'List a watchlist'
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+
+  # WatchlstItems
+  create_update_watchlist_item:
+    title: Create or update a watchlist item
+    description: Create or update a watchlist item.
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      watchlistAlias:
+        title: Watchlist Alias
+        description: The watchlist alias
+        type: string
+        required: true
+      watchlistItemId:
+        title: The watchlist item id
+        description: The watchlist item id (GUID)
+        type: string
+        required: true
+      etag:
+        title: Resources Etag
+        description: Resources etag
+        type: string
+      properties:
+        title: Watchlist Item Properties
+        description: The watchlist item Properties.
+        type: WatchlistItemProperties
+        required: true
+  get_watchlist_item:
+    title: Get a watchlist item
+    description: Get a watchlist item.
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      watchlistAlias:
+        title: Watchlist Alias
+        description: The watchlist alias
+        type: string
+        required: true
+      watchlistItemId:
+        title: The watchlist item id
+        description: The watchlist item id (GUID)
+        type: string
+        required: true
+  delete_watchlist_item:
+    title: Delete a watchlist item
+    description: Delete a watchlist item.
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      watchlistAlias:
+        title: Watchlist Alias
+        description: The watchlist alias
+        type: string
+        required: true
+      watchlistItemId:
+        title: The watchlist item id
+        description: The watchlist item id (GUID)
+        type: string
+        required: true
+  list_watchlist_items:
+    title: list watchlist items
+    description: List watchlist items.
+    input:
+      resourceGroupName:
+        title: Resource Group Name
+        required: true
+        description: The name of the resource group within the user's subscription. The name is case insensitive.
+        type: string
+      subscriptionId:
+        title: Subscription ID
+        required: true
+        description: "Azure subscription ID Regex pattern: ^[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$"
+        type: string
+      workspaceName:
+        title: Workspace Name
+        required: true
+        description: The name of the workspace
+        type: string
+      api-version:
+        title: API version
+        description: The API version to use for this operation.
+        required: true
+        type: string
+      watchlistAlias:
+        title: Watchlist Alias
+        description: The watchlist alias
+        type: string
+        required: true

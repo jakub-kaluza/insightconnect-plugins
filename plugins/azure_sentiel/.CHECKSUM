@@ -1,0 +1,151 @@
+{
+	"spec": "44136956734b162ef061a535f7faa225",
+	"manifest": "083c387bb727b320d4d3c367ede4b44f",
+	"setup": "2586908a265e9e78c0187869819a25d7",
+	"schemas": [
+		{
+			"identifier": "append_tags/schema.py",
+			"hash": "67842e8dd5cce614d323fd207d0ac463"
+		},
+		{
+			"identifier": "create_comment/schema.py",
+			"hash": "dd36be7cdda9aa259ec88d10aac65df0"
+		},
+		{
+			"identifier": "create_incident/schema.py",
+			"hash": "fc1e517a6219b7c0e1894148754f19cc"
+		},
+		{
+			"identifier": "create_indicator/schema.py",
+			"hash": "c7a5fd50c23a30ca291e528fc108527c"
+		},
+		{
+			"identifier": "create_update_watchlist/schema.py",
+			"hash": "2d2b8db934837f2ec76089912aca3ac9"
+		},
+		{
+			"identifier": "create_update_watchlist_item/schema.py",
+			"hash": "3671aeff972086fc9eb5d2bec1800bc9"
+		},
+		{
+			"identifier": "delete_comment/schema.py",
+			"hash": "fbbca5a57bf5840f7b662da88357bd06"
+		},
+		{
+			"identifier": "delete_incident/schema.py",
+			"hash": "9336e7597c633076c93636e044bbb65a"
+		},
+		{
+			"identifier": "delete_indicator/schema.py",
+			"hash": "ee2d9141885ee4cbbf5db62390b38eeb"
+		},
+		{
+			"identifier": "delete_watchlist/schema.py",
+			"hash": "06fcc025f76158438af65f336aef4a9b"
+		},
+		{
+			"identifier": "delete_watchlist_item/schema.py",
+			"hash": "d21e44197812a81515f4be971a485e99"
+		},
+		{
+			"identifier": "get_comment/schema.py",
+			"hash": "c6ad3fbacf97208716a766fbbd23e233"
+		},
+		{
+			"identifier": "get_incident/schema.py",
+			"hash": "11e68b46c5ad90f7bf1f0d3a4140d7c9"
+		},
+		{
+			"identifier": "get_indicator/schema.py",
+			"hash": "39d3cc7ee805ce533c1c7679a1c656d5"
+		},
+		{
+			"identifier": "get_watchlist/schema.py",
+			"hash": "4982f1ace5ad3b37f86717168c3d8a68"
+		},
+		{
+			"identifier": "get_watchlist_item/schema.py",
+			"hash": "f15b9bc242989e11a197b15d186a2fdb"
+		},
+		{
+			"identifier": "list_alerts/schema.py",
+			"hash": "a1f47a79044ad6f35fa433d4e9854e74"
+		},
+		{
+			"identifier": "list_bookmarks/schema.py",
+			"hash": "1112d6ba9cdeebf2856df073328cff51"
+		},
+		{
+			"identifier": "list_comments/schema.py",
+			"hash": "c9e8bb969f86083f7da48d691b8cfb75"
+		},
+		{
+			"identifier": "list_entities/schema.py",
+			"hash": "3beebcc581291efa865529dd2dda0b56"
+		},
+		{
+			"identifier": "list_incidents/schema.py",
+			"hash": "6ce1450bfa0f010943326cc4488e6a23"
+		},
+		{
+			"identifier": "list_watchlist_items/schema.py",
+			"hash": "bedcdea59447e7fa7da33ad1438b8640"
+		},
+		{
+			"identifier": "list_watchlists/schema.py",
+			"hash": "ec58fa7a86ab01c18d6e757ded8d35ab"
+		},
+		{
+			"identifier": "query_indicators/schema.py",
+			"hash": "0a0d2f2a5e6dc021b8b14d5261057e7f"
+		},
+		{
+			"identifier": "replace_tags/schema.py",
+			"hash": "b04e615ba90e101a58975daf7ffba7ab"
+		},
+		{
+			"identifier": "update_indicator/schema.py",
+			"hash": "c0731b43e79856e5779139bab2eae0b5"
+		},
+		{
+			"identifier": "connection/schema.py",
+			"hash": "f4b6d5f0be5694a58261c92cd8339fb9"
+		},
+		{
+			"identifier": "insightconnect_plugin_runtime/schema.py",
+			"hash": "98e2cf8bf394d0b6f97cdfeb657ea71b"
+		},
+		{
+			"identifier": "marshmallow/schema.py",
+			"hash": "7c9fc22caa77ab8be9957e79867f426a"
+		},
+		{
+			"identifier": "hello/schema.py",
+			"hash": "92ec4b966e523fe43b8d3e1589ecd235"
+		},
+		{
+			"identifier": "return_bad_json/schema.py",
+			"hash": "bb41c13e9e71e212c1545150a16f8b73"
+		},
+		{
+			"identifier": "throw_exception/schema.py",
+			"hash": "f59f8278af731495ae3b2367744224f2"
+		},
+		{
+			"identifier": "connection/schema.py",
+			"hash": "f1bf7d508c81c245888665a322d984e8"
+		},
+		{
+			"identifier": "hello_trigger/schema.py",
+			"hash": "6fda62f9b28a899e2ecb7aab1311bbb2"
+		},
+		{
+			"identifier": "return_bad_json_trigger/schema.py",
+			"hash": "9a207816ba5b0ab0f9e4f40d86c4cc3e"
+		},
+		{
+			"identifier": "throw_exception_trigger/schema.py",
+			"hash": "23e4aee31e1c532d9ed50830efad1b8d"
+		}
+	]
+}
